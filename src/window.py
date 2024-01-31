@@ -10,5 +10,5 @@ class MyWindow():
 if __name__ == '__main__':
     w1 = MyWindow(0,"bla1")
     w2 = MyWindow(1,"bla2")
-    windows = [w1,w2]
-    print(windows)
+    raw_windows = [w1,w2]
+    print(raw_windows)
