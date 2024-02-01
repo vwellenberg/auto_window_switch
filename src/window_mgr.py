@@ -36,7 +36,8 @@ class WindowMgr():
             interval = int(input('Input window switch interval (in seconds) or press enter for 60 seconds: '))
         except:
             interval = 60
-        self._MAX_RETRY = 50
+        self._RETRY_INTERVAL = 1.0
+        self._MAX_RETRY = 10
         self.cycles = 0
         self._idx_last_window = -1
         self._idx_next_window = 0
@@ -180,7 +181,7 @@ class WindowMgr():
             success = True
         except: 
             logging.debug(f'Window activation failed for "{window.title}" -- {traceback.format_exc()} ... trying again!')
-            sleep(0.1)
+            sleep(self._RETRY_INTERVAL)
         return success
     
     def _cycle(self):
