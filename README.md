@@ -3,3 +3,7 @@
 ## Usage
 
 * **Strg + C** - quit program 
+
+## TODO
+
+* remove windows from queue
