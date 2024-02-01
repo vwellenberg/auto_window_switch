@@ -1,8 +1,8 @@
 # auto_window_switch
 
-## Usage
+Prototype version of an auto window switch program. Tested for Windows 10. Execute the 'main.exe' and follow the instructions.
 
-* follow the given instructions
+## Usage
 
 ### Hotkeys
 
@@ -12,3 +12,4 @@
 
 * improve reliability
 * removable windows from queue
+* outsource window activation to MyWindow?
