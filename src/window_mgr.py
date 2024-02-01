@@ -198,6 +198,9 @@ class WindowMgr():
             # try to 'activate' window as often as possible
             success = self.activate_window(self._idx_next_window)
             attempts += 1
+        if not success:
+            t = datetime.datetime.now().strftime("%H:%M:%S")
+            print(f'{t} -- Activation failed for "{self._window_queue[self._idx_last_window].title}" after {self._MAX_RETRY} attempts')
         self.cycles += 1
 
     def print_window_queue(self):
