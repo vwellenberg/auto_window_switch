@@ -171,6 +171,7 @@ class WindowMgr():
             windowHandel = win32gui.FindWindow(None, window.title)
 
             shell = win32com.client.Dispatch("WScript.Shell")
+            shell.SendKeys('%') # Alt-key should improve reliability
             shell.SendKeys('%')
             win32gui.SetForegroundWindow(windowHandel)
             self._update_window_pointers()
