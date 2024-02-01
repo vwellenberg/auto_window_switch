@@ -154,6 +154,3 @@ cython_debug/
 # dev test stuff
 dev/
 images/
-
-# do not ignore
-!main.exe
