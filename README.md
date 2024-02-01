@@ -10,4 +10,5 @@
 
 ## TODO
 
-* remove windows from queue
+* improve reliability
+* removable windows from queue
