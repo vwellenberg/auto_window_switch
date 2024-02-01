@@ -7,7 +7,6 @@ import datetime
 import os 
 import win32con
 import traceback
-import sys
 
 # TODO (!!!) impl function to remove windows from queue
 # TODO docstrings
