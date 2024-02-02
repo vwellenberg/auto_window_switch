@@ -1,5 +1,5 @@
 from time import sleep
-from my_window import *
+from my_window import MyWindow
 import win32gui, win32com.client
 import logging
 import yaml 
@@ -16,6 +16,7 @@ windows = []
 """Needed as a container for the initial reading of the current windows."""
 
 def clear_screen():
+    """Clear terminal text"""
     os.system('cls')
 
 def winEnumHandler( hwnd, ctx ):
@@ -27,38 +28,39 @@ def winEnumHandler( hwnd, ctx ):
 
 # TODO thread ?
 class WindowMgr():
+    
 
     def __init__(self, interval:int = 60, selection:list = []) -> None:
-        # TODO validate
         interval = 60
         try:
-            interval = int(input('Input window switch interval (in seconds) or press enter for 60 seconds: '))
+            user_info = 'Input window switch interval (in seconds) or press enter for 60 seconds: '
+            interval = int(input(user_info))
         except:
             interval = 60
-        self._RETRY_INTERVAL = 1.0
-        self._MAX_RETRY = 10
+        self._retry_interval = 1.0
+        self._max_retry = 10
         self.cycles = 0
         self._idx_last_window = -1
         self._idx_next_window = 0
         self._countdown_s = 3
         self._interval = interval
-        self.init_windows()
+        self._init_windows()
         self._found_windows = windows # save windows as attribute
         """windows found on ... Windows"""
         self._window_queue = selection
         """windows chosen to cycle through"""
-        self.validate()
+        self._validate()
 
-        logging.debug(f'raw windows: {self._found_windows}')
+        logging.debug('Windows found: %s', self._found_windows)
         # TODO Fix: Has to be called more than once atm
-        self.prefilter_windows()
-        self.prefilter_windows()
-        logging.debug(f'filtered windows: {self._found_windows}')
+        self._prefilter_windows()
+        self._prefilter_windows()
+        logging.debug('Filtered windows: %s',self._found_windows)
 
-        self.prompt_window_selection()
+        self._prompt_window_selection()
         self.start()
 
-    def validate(self):
+    def _validate(self):
         # TODO impl
         if not len(windows):
             # TODO error
@@ -71,20 +73,20 @@ class WindowMgr():
     #     # self._found_windows = windows
     #     logging.debug(f'reloaded windows: {windows}')
 
-    def init_windows(self):
+    def _init_windows(self):
         """Loads all existing windows"""
         win32gui.EnumWindows( winEnumHandler, None )
 
-    def read_filters(self):
+    def _read_filters(self):
         with open('filters.yaml','r') as f:
             filters = yaml.safe_load(f)
         self.filters = filters
         logging.debug(self.filters)
 
-    def prefilter_windows(self):
+    def _prefilter_windows(self):
         filtered = 0
         windows = self._found_windows
-        self.read_filters()
+        self._read_filters()
 
         for filter in self.filters:
             for window in windows:
@@ -95,21 +97,21 @@ class WindowMgr():
         self._found_windows = windows
         logging.debug(f'number of filtered windows: {filtered}')
 
-    def print_selectable_windows(self):
+    def _print_selectable_windows(self):
         print('Selectable windows:')
         for idx in range (0,len(self._found_windows)):
             print(f'{idx} - "{self._found_windows[idx].title}"')
         print()
 
-    def prompt_window_selection(self):
+    def _prompt_window_selection(self):
         choose_more = True
         while choose_more:
             clear_screen()
 
-            self.print_selectable_windows()
+            self._print_selectable_windows()
 
             if self._window_queue:
-                self.print_window_queue()
+                self._print_window_queue()
 
             print()
             i = input('Add new game by index (or press enter to finish): ')
@@ -158,7 +160,7 @@ class WindowMgr():
         if self._idx_last_window > len(self._window_queue) - 1:
             self._idx_last_window = 0
 
-    def activate_window(self,idx:int) -> bool:
+    def _activate_window(self,idx:int) -> bool:
         """core functionality to get a window to the foreground"""
         window = self._window_queue[idx]
         success = False
@@ -180,7 +182,7 @@ class WindowMgr():
             success = True
         except: 
             logging.debug(f'Window activation failed for "{window.title}" -- {traceback.format_exc()} ... trying again!')
-            sleep(self._RETRY_INTERVAL)
+            sleep(self._retry_interval)
         return success
     
     def _cycle(self):
@@ -193,26 +195,26 @@ class WindowMgr():
             self._update_window_pointers()
         success = False
         attempts = 1
-        while (not success and attempts <= self._MAX_RETRY):
+        while (not success and attempts <= self._max_retry):
             logging.debug(f'Attempt #{attempts} to activate "{window.title}"')
             # try to 'activate' window as often as possible
-            success = self.activate_window(self._idx_next_window)
+            success = self._activate_window(self._idx_next_window)
             attempts += 1
         if not success:
             t = datetime.datetime.now().strftime("%H:%M:%S")
-            print(f'{t} -- Activation failed for "{self._window_queue[self._idx_last_window].title}" after {self._MAX_RETRY} attempts')
+            print(f'{t} -- Activation failed for "{self._window_queue[self._idx_last_window].title}" after {self._max_retry} attempts')
         self.cycles += 1
 
-    def print_window_queue(self):
+    def _print_window_queue(self):
         print('Current window order:')
         for idx in range(0,len(self._window_queue)):
             print(f'{idx+1}. {self._window_queue[idx].title}')
         print()
 
-    def countdown(self):
+    def _start_countdown(self):
         while (self._countdown_s > 0):
             clear_screen() 
-            self.print_window_queue()
+            self._print_window_queue()
             print()
             print(f'Starting in {self._countdown_s} ...')
             sleep(1)
@@ -224,7 +226,7 @@ class WindowMgr():
 
         input('Start? (Press enter to continue)')
 
-        self.countdown()
+        self._start_countdown()
         
         clear_screen()
         while(do_run):
