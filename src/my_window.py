@@ -9,7 +9,7 @@ class MyWindow():
         self.title = windowName
 
     def __repr__(self):
-        return f'\n{self.title} ({self.id})'
+        return f'\n"{self.title}" ({self.id})'
 
     # def activate(self):
     #     logging.debug(f'activateWindow {self.title}')
