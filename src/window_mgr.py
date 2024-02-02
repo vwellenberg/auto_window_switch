@@ -192,8 +192,8 @@ class WindowMgr():
             # go to next title
             self._update_window_pointers()
         success = False
-        attempts = 0
-        while (not success and attempts < self._MAX_RETRY):
+        attempts = 1
+        while (not success and attempts <= self._MAX_RETRY):
             logging.debug(f'Attempt #{attempts} to activate "{window.title}"')
             # try to 'activate' window as often as possible
             success = self.activate_window(self._idx_next_window)
