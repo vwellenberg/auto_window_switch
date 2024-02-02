@@ -1,6 +1,6 @@
 # auto_window_switch
 
-Prototype version of an auto window switch program. Tested for Windows 10. Execute the 'main.exe' and follow the instructions.
+An early prototype of an auto window switch program. Tested for Windows 10. Execute the `main.exe` and follow the instructions.
 
 ## Usage
 
@@ -10,6 +10,15 @@ Prototype version of an auto window switch program. Tested for Windows 10. Execu
 
 ## TODO
 
+### primary
+
 * improve reliability
-* removable windows from queue
+* add removable windows from queue
+
+### secondary
+
+* add configuration options
+    * switch sound on/off
+    * number of retries and interval
+* add app icon
 * outsource window activation to MyWindow?
