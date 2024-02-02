@@ -1,10 +1,11 @@
 from time import sleep
 from my_window import MyWindow
-import win32gui, win32com.client
+import win32gui
+import win32com.client
 import logging
-import yaml 
-import datetime 
-import os 
+import yaml
+import datetime
+import os
 import win32con
 import traceback
 
@@ -15,27 +16,33 @@ import traceback
 windows = []
 """Needed as a container for the initial reading of the current windows."""
 
+
 def clear_screen():
     """Clear terminal text"""
     os.system('cls')
 
-def winEnumHandler( hwnd, ctx ):
-    if win32gui.IsWindowVisible( hwnd ):
-        title = win32gui.GetWindowText( hwnd )
+
+def winEnumHandler(hwnd, ctx):
+    if win32gui.IsWindowVisible(hwnd):
+        title = win32gui.GetWindowText(hwnd)
         if title:
             # logging.debug(f"{win32gui.GetWindowText( hwnd )}", f'({hwnd})')
-            windows.append(MyWindow(windowId=hwnd,windowName=win32gui.GetWindowText( hwnd )))
+            windows.append(
+                MyWindow(
+                    windowId=hwnd,
+                    windowName=win32gui.GetWindowText(hwnd)))
 
 # TODO thread ?
-class WindowMgr():
-    
 
-    def __init__(self, interval:int = 60, selection:list = []) -> None:
+
+class WindowMgr():
+
+    def __init__(self, interval: int = 60, selection: list = []) -> None:
         interval = 60
         try:
             user_info = 'Input window switch interval (in seconds) or press enter for 60 seconds: '
             interval = int(input(user_info))
-        except:
+        except BaseException:
             interval = 60
         self._retry_interval = 1.0
         self._max_retry = 10
@@ -45,7 +52,7 @@ class WindowMgr():
         self._countdown_s = 3
         self._interval = interval
         self._init_windows()
-        self._found_windows = windows # save windows as attribute
+        self._found_windows = windows  # save windows as attribute
         """windows found on ... Windows"""
         self._window_queue = selection
         """windows chosen to cycle through"""
@@ -55,7 +62,7 @@ class WindowMgr():
         # TODO Fix: Has to be called more than once atm
         self._prefilter_windows()
         self._prefilter_windows()
-        logging.debug('Filtered windows: %s',self._found_windows)
+        logging.debug('Filtered windows: %s', self._found_windows)
 
         self._prompt_window_selection()
         self.start()
@@ -67,7 +74,7 @@ class WindowMgr():
             logging.error("No Windows")
 
     # def reload_windows(self):
-    #     # reset loaded Windows 
+    #     # reset loaded Windows
     #     windows = []
     #     self.init_windows()
     #     # self._found_windows = windows
@@ -75,10 +82,10 @@ class WindowMgr():
 
     def _init_windows(self):
         """Loads all existing windows"""
-        win32gui.EnumWindows( winEnumHandler, None )
+        win32gui.EnumWindows(winEnumHandler, None)
 
     def _read_filters(self):
-        with open('filters.yaml','r') as f:
+        with open('filters.yaml', 'r') as f:
             filters = yaml.safe_load(f)
         self.filters = filters
         logging.debug(self.filters)
@@ -92,14 +99,15 @@ class WindowMgr():
             for window in windows:
                 if filter in window.title:
                     windows.remove(window)
-                    logging.debug(f'Removed: "{window.title} ({window.id})" by Filter: "{filter}"')
+                    logging.debug(
+                        f'Removed: "{window.title} ({window.id})" by Filter: "{filter}"')
                     filtered += 1
         self._found_windows = windows
         logging.debug(f'number of filtered windows: {filtered}')
 
     def _print_selectable_windows(self):
         print('Selectable windows:')
-        for idx in range (0,len(self._found_windows)):
+        for idx in range(0, len(self._found_windows)):
             print(f'{idx} - "{self._found_windows[idx].title}"')
         print()
 
@@ -116,35 +124,36 @@ class WindowMgr():
             print()
             i = input('Add new game by index (or press enter to finish): ')
             # check input
-            try: 
+            try:
                 i = int(i)
                 idx = i
-                if idx > len(self._found_windows) -1:
+                if idx > len(self._found_windows) - 1:
                     # invalid
-                    clear_screen() 
+                    clear_screen()
                     input('<Invalid index number> (press enter to continue)')
-                else: 
+                else:
                     # valid input, add
                     self._window_queue.append(self._found_windows[idx])
                     print(f'"{self._found_windows[idx].title}" added')
-            except:
+            except BaseException:
                 # no integer
                 # check other inputs than index number
                 if i == '' or i == 'exit':
                     choose_more = False
-                else: 
-                    clear_screen() 
+                else:
+                    clear_screen()
                     input('<Invalid input> (press enter to continue)')
 
-    def _is_window_existent(self,window):
+    def _is_window_existent(self, window):
         # TODO Fix
         exists = False
         # update active windows from ... Windows
         # self.reload_windows()
         # iterate over windows
-        for idx in range (0,len(self._found_windows)):
+        for idx in range(0, len(self._found_windows)):
             if window.title == self._found_windows[idx].title:
-                logging.debug(f'"{window.title}" found ... match with "{self._found_windows[idx].title}"')
+                logging.debug(
+                    f'"{window.title}" found ... match with "{self._found_windows[idx].title}"')
                 exists = True
                 break
         if not exists:
@@ -160,37 +169,40 @@ class WindowMgr():
         if self._idx_last_window > len(self._window_queue) - 1:
             self._idx_last_window = 0
 
-    def _activate_window(self,idx:int) -> bool:
+    def _activate_window(self, idx: int) -> bool:
         """core functionality to get a window to the foreground"""
         window = self._window_queue[idx]
         success = False
         logging.debug(f'activateWindow {window.title}')
         try:
             win32gui.ShowWindow(window.id, win32con.SW_MAXIMIZE)
-        except: 
+        except BaseException:
             pass
-        try: 
+        try:
             windowHandel = win32gui.FindWindow(None, window.title)
 
             shell = win32com.client.Dispatch("WScript.Shell")
-            shell.SendKeys('%') # Alt-key should improve reliability
+            shell.SendKeys('%')  # Alt-key should improve reliability
             shell.SendKeys('%')
             win32gui.SetForegroundWindow(windowHandel)
             self._update_window_pointers()
             t = datetime.datetime.now().strftime("%H:%M:%S")
-            print(f'{t} -- Activated "{self._window_queue[self._idx_last_window].title}"')
+            print(
+                f'{t} -- Activated "{self._window_queue[self._idx_last_window].title}"')
             success = True
-        except: 
-            logging.debug(f'Window activation failed for "{window.title}" -- {traceback.format_exc()} ... trying again!')
+        except BaseException:
+            logging.debug(
+                f'Window activation failed for "{window.title}" -- {traceback.format_exc()} ... trying again!')
             sleep(self._retry_interval)
         return success
-    
+
     def _cycle(self):
         window = self._window_queue[self._idx_next_window]
-        if not self._is_window_existent(window):   
+        if not self._is_window_existent(window):
             # window does not exist, remove it from the queue
-            self._window_queue.remove(self._idx_next_window) # TODO Fix
-            logging.debug(f'"{window.title}" does not exist and got removed from queue')
+            self._window_queue.remove(self._idx_next_window)  # TODO Fix
+            logging.debug(
+                f'"{window.title}" does not exist and got removed from queue')
             # go to next title
             self._update_window_pointers()
         success = False
@@ -202,18 +214,19 @@ class WindowMgr():
             attempts += 1
         if not success:
             t = datetime.datetime.now().strftime("%H:%M:%S")
-            print(f'{t} -- Activation failed for "{self._window_queue[self._idx_last_window].title}" after {self._max_retry} attempts')
+            print(
+                f'{t} -- Activation failed for "{self._window_queue[self._idx_last_window].title}" after {self._max_retry} attempts')
         self.cycles += 1
 
     def _print_window_queue(self):
         print('Current window order:')
-        for idx in range(0,len(self._window_queue)):
+        for idx in range(0, len(self._window_queue)):
             print(f'{idx+1}. {self._window_queue[idx].title}')
         print()
 
     def _start_countdown(self):
         while (self._countdown_s > 0):
-            clear_screen() 
+            clear_screen()
             self._print_window_queue()
             print()
             print(f'Starting in {self._countdown_s} ...')
@@ -227,11 +240,12 @@ class WindowMgr():
         input('Start? (Press enter to continue)')
 
         self._start_countdown()
-        
+
         clear_screen()
-        while(do_run):
+        while (do_run):
             self._cycle()
             sleep(self._interval)
+
 
 if __name__ == '__main__':
     logging.basicConfig(
