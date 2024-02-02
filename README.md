@@ -22,3 +22,4 @@ An early prototype of an auto window switch program. Tested for Windows 10. Exec
     * number of retries and interval
 * add app icon
 * outsource window activation to MyWindow?
+* mute other windows
