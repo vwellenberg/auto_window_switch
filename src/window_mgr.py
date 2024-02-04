@@ -8,6 +8,7 @@ import datetime
 import os
 import win32con
 import traceback
+import sys
 
 # TODO (!!!) impl function to remove windows from queue
 # TODO docstrings
@@ -74,7 +75,7 @@ class WindowMgr():
         logging.debug('Validating ...')
         if self._interval < 5:
             logging.error('Invalid input: "_interval" has to be higher than 5')
-            input('Invalid input: Interval has to be higher than 5')
+            input('ERROR -- invalid input: Interval has to be higher than 5')
             exit()
         # # TODO impl
         # if not len(windows):
@@ -86,9 +87,20 @@ class WindowMgr():
         win32gui.EnumWindows(winEnumHandler, None)
 
     def _read_filters(self):
-        with open('filters.yaml', 'r', encoding='utf-8') as f:
-            filters = yaml.safe_load(f)
-        self.filters = filters
+        try:
+            with open('filters.yaml', 'r', encoding='utf-8') as f:
+                filters = yaml.safe_load(f)
+                logging.debug('filters.yaml loaded.')
+                self.filters = filters
+                logging.debug('filters initialized')
+        except FileNotFoundError:
+            print('ERROR -- "filters.yaml" not found. It has to be in the same folder as aws.exe')
+            logging.debug(f'"filters.yaml" not found: {traceback.format_exc()}')
+            sys.exit()
+        except BaseException:
+            print('ERROR -- Reading filters.yaml failed.')
+            logging.debug('Reading the "filters.yaml" failed: %s', traceback.format_exc())
+            sys.exit()
         logging.debug(self.filters)
 
     def _prefilter_windows(self):
