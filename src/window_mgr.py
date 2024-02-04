@@ -70,17 +70,16 @@ class WindowMgr():
         self.start()
 
     def _validate(self):
-        # TODO impl
-        if not len(windows):
-            # TODO error
-            logging.error("No Windows")
-
-    # def reload_windows(self):
-    #     # reset loaded Windows
-    #     windows = []
-    #     self.init_windows()
-    #     # self._found_windows = windows
-    #     logging.debug(f'reloaded windows: {windows}')
+        """Check all variables for validity"""
+        logging.debug('Validating ...')
+        if self._interval < 5:
+            logging.error('Invalid input: "_interval" has to be higher than 5')
+            input('Invalid input: Interval has to be higher than 5')
+            exit()
+        # # TODO impl
+        # if not len(windows):
+        #     # TODO error
+        #     logging.error("No Windows")
 
     def _init_windows(self):
         """Loads all existing windows"""
