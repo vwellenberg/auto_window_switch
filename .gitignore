@@ -156,3 +156,4 @@ dev/
 images/
 tests/tests.py
 sounds/switch.mp3
+src/validator.py
