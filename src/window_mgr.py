@@ -58,6 +58,8 @@ class WindowMgr():
         """windows chosen to cycle through"""
         self._validate()
 
+        self._read_filters()
+
         logging.debug('Windows found: %s', self._found_windows)
         # TODO Fix: Has to be called more than once atm
         self._prefilter_windows()
@@ -85,7 +87,7 @@ class WindowMgr():
         win32gui.EnumWindows(winEnumHandler, None)
 
     def _read_filters(self):
-        with open('filters.yaml', 'r') as f:
+        with open('filters.yaml', 'r', encoding='utf-8') as f:
             filters = yaml.safe_load(f)
         self.filters = filters
         logging.debug(self.filters)
@@ -93,8 +95,6 @@ class WindowMgr():
     def _prefilter_windows(self):
         filtered = 0
         windows = self._found_windows
-        self._read_filters()
-
         for filter in self.filters:
             for window in windows:
                 if filter in window.title:
@@ -122,11 +122,11 @@ class WindowMgr():
                 self._print_window_queue()
 
             print()
-            i = input('Add new game by index (or press enter to finish): ')
+            user_input = input('Add new game by index (or press enter to finish): ')
             # check input
             try:
-                i = int(i)
-                idx = i
+                user_input = int(user_input)
+                idx = user_input
                 if idx > len(self._found_windows) - 1:
                     # invalid
                     clear_screen()
@@ -138,7 +138,7 @@ class WindowMgr():
             except BaseException:
                 # no integer
                 # check other inputs than index number
-                if i == '' or i == 'exit':
+                if user_input == '' or user_input == 'exit':
                     choose_more = False
                 else:
                     clear_screen()
