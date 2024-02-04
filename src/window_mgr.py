@@ -94,13 +94,13 @@ class WindowMgr():
                 self.filters = filters
                 logging.debug('filters initialized')
         except FileNotFoundError:
-            print('ERROR -- "filters.yaml" not found. It has to be in the same folder as aws.exe')
-            logging.debug(f'"filters.yaml" not found: {traceback.format_exc()}')
-            sys.exit()
+            input('WARNING -- "filters.yaml" not found. It needs to be in the same folder as aws.exe. Using no window filters.')
+            logging.warn(f'"filters.yaml" not found: {traceback.format_exc()}')
+            self.filters = []
         except BaseException:
-            print('ERROR -- Reading filters.yaml failed.')
-            logging.debug('Reading the "filters.yaml" failed: %s', traceback.format_exc())
-            sys.exit()
+            input('WARNING -- Reading "filters.yaml" failed. Using no window filters.')
+            logging.warn('Reading the "filters.yaml" failed: %s', traceback.format_exc())
+            self.filters = []
         logging.debug(self.filters)
 
     def _prefilter_windows(self):
@@ -149,8 +149,11 @@ class WindowMgr():
             except BaseException:
                 # no integer
                 # check other inputs than index number
-                if user_input == '' or user_input == 'exit':
+                if (user_input == '' or user_input == 'exit') and len(self._window_queue) >= 2 :
                     choose_more = False
+                elif len(self._window_queue) <= 2:
+                    clear_screen()
+                    input('You need to choose at least two windows (press enter to continue)')
                 else:
                     clear_screen()
                     input('<Invalid input> (press enter to continue)')
