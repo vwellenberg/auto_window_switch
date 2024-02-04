@@ -154,3 +154,5 @@ cython_debug/
 # dev test stuff
 dev/
 images/
+tests/tests.py
+sounds/switch.mp3
