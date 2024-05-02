@@ -4,6 +4,8 @@ An early prototype of an auto window switch program. Tested for Windows 10. Exec
 
 ## Usage
 
+* instructions are displayed on startup
+
 ### Hotkeys
 
 * **Strg + C** - quit program 
@@ -13,13 +15,12 @@ An early prototype of an auto window switch program. Tested for Windows 10. Exec
 ### primary
 
 * improve reliability
-* add removable windows from queue
+* remove closed windows from queue
 
 ### secondary
 
 * add configuration options
     * switch sound on/off
     * number of retries and interval
-* add app icon
 * outsource window activation to MyWindow?
-* mute other windows
+* auto mute other windows
